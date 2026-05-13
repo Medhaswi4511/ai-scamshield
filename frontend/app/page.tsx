@@ -63,7 +63,7 @@ export default function Home() {
         formData.append("file", image);
 
         const response = await fetch(
-          "http://127.0.0.1:8000/scan-image",
+          "https://ai-scamshield-backend.onrender.com",
           {
             method: "POST",
             body: formData,
