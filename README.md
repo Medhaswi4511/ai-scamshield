@@ -1,60 +1,93 @@
 # AI ScamShield 🛡️
 
-AI-powered scam and phishing detection platform built using Next.js + FastAPI.
+AI-powered scam, phishing, and cyber threat detection platform built using Next.js, FastAPI, and a custom Chrome browser extension.
 
 ---
 
-## Features
+# Features
+
+## Web Application
 
 ✅ Scam Message Detection  
 ✅ Phishing URL Scanner  
 ✅ Screenshot OCR Scam Detection  
 ✅ Scam Awareness Quiz Mode  
 ✅ AI Risk Score Analysis  
-✅ Real-time Detection Results  
 ✅ Modern Cybersecurity Dashboard UI  
 
 ---
 
-## Tech Stack
+## Browser Extension
 
-### Frontend
+✅ Automatic Background URL Scanning  
+✅ Real-Time Phishing Detection  
+✅ Red Danger Badge Alerts  
+✅ Live Warning Overlay Popups  
+✅ Current Website Risk Analysis  
+
+---
+
+# Screenshot OCR Scanner
+
+Upload screenshots of:
+- OTP scams
+- phishing messages
+- fake banking alerts
+- suspicious chats
+
+The system:
+1. Extracts text using OCR
+2. Detects scam indicators
+3. Calculates AI risk score
+4. Displays phishing analysis
+
+---
+
+# Scam Awareness Quiz
+
+Interactive cybersecurity training mode where users identify:
+- phishing attempts
+- scam messages
+- safe communications
+
+---
+
+# Tech Stack
+
+## Frontend
 - Next.js
 - React
 - Tailwind CSS
 
-### Backend
+## Backend
 - FastAPI
 - Python
 - Pytesseract OCR
 - Pillow
 
----
-
-## Screenshot Scanner
-
-Upload screenshots of suspicious messages, OTP scams, phishing pages, or fake banking alerts.
-
-The system:
-1. Extracts text using OCR
-2. Detects scam keywords
-3. Calculates risk score
-4. Displays threat analysis
+## Browser Extension
+- JavaScript
+- Chrome Extension APIs
+- Background Workers
+- Content Scripts
 
 ---
 
-## Scam Quiz Mode
+# Browser Extension Workflow
 
-Interactive awareness training module where users identify:
-- Scam messages
-- Safe messages
-- Phishing attempts
+1. User opens website
+2. Extension scans URL automatically
+3. AI ScamShield backend analyzes phishing risk
+4. Extension displays:
+   - warning badge
+   - phishing overlay
+   - risk alerts
 
 ---
 
-## Installation
+# Installation
 
-### Frontend
+## Frontend
 
 ```bash
 cd frontend
@@ -62,7 +95,7 @@ npm install
 npm run dev
 ```
 
-### Backend
+## Backend
 
 ```bash
 cd backend
@@ -70,19 +103,42 @@ pip install -r requirements.txt
 python -m uvicorn main:app --reload
 ```
 
+## Browser Extension
+
+1. Open:
+```text
+chrome://extensions
+```
+
+2. Enable:
+```text
+Developer Mode
+```
+
+3. Click:
+```text
+Load unpacked
+```
+
+4. Select:
+```text
+browser-extension
+```
+
 ---
 
-## Future Enhancements
+# Future Enhancements
 
-- Browser Extension
-- AI-based NLP scam detection
-- Regional scam intelligence
-- Voice scam analyzer
+- AI NLP scam analysis
+- Voice scam call detection
 - Community scam reporting
-- ML-based phishing detection
+- Scam intelligence heatmaps
+- AI explanation engine
+- Dangerous website blocking
+- ML-based phishing prediction
 
 ---
 
-## Author
+# Author
 
 Medhaswi
