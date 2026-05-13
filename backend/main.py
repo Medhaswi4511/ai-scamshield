@@ -1,18 +1,25 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 app = FastAPI()
 
-from fastapi import FastAPI
-from pydantic import BaseModel
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-app = FastAPI()
 
 class MessageRequest(BaseModel):
     text: str
 
+
 class URLRequest(BaseModel):
     url: str
+
 
 scam_keywords = [
     "urgent",
@@ -25,13 +32,14 @@ scam_keywords = [
     "free money"
 ]
 
+
 @app.get("/")
 def home():
     return {"message": "AI ScamShield backend running"}
 
+
 @app.post("/detect-scam")
 def detect_scam(data: MessageRequest):
-
     text = data.text.lower()
 
     risk_score = 0
@@ -50,9 +58,10 @@ def detect_scam(data: MessageRequest):
         "is_scam": is_scam,
         "reasons": reasons
     }
+
+
 @app.post("/detect-url")
 def detect_url(data: URLRequest):
-
     url = data.url.lower()
 
     risk_score = 0
