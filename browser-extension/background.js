@@ -2,8 +2,17 @@ async function scanURL(tabId, url) {
 
   try {
 
+    // SKIP CHROME PAGES
+    if (
+      url.startsWith("chrome://") ||
+      url.startsWith("edge://") ||
+      url.startsWith("about:")
+    ) {
+      return;
+    }
+
     const response = await fetch(
-      "https://ai-scamshield-production.up.railway.app",
+      "https://ai-scamshield-production.up.railway.app/detect-url",
       {
         method: "POST",
 
@@ -20,11 +29,15 @@ async function scanURL(tabId, url) {
     const data =
       await response.json();
 
-    console.log(data);
+    console.log(
+      "Scan Result:",
+      data
+    );
 
-    // Trigger popup for ANY score >=30
+    // DANGEROUS WEBSITE
     if (data.risk_score >= 30) {
 
+      // RED BADGE
       chrome.action.setBadgeText({
         text: "!",
         tabId: tabId,
@@ -35,48 +48,78 @@ async function scanURL(tabId, url) {
         tabId: tabId,
       });
 
+      // BIG PAGE POPUP
       chrome.scripting.executeScript({
         target: {
           tabId: tabId,
         },
 
+        world: "MAIN",
+
         args: [data.risk_score],
 
         func: (score) => {
 
-          if (
+          // REMOVE OLD POPUP
+          const oldPopup =
             document.getElementById(
-              "ai-scamshield-popup"
-            )
-          ) {
-            return;
+              "ai-scamshield-danger-popup"
+            );
+
+          if (oldPopup) {
+            oldPopup.remove();
           }
 
+          // CREATE POPUP
           const popup =
             document.createElement(
               "div"
             );
 
           popup.id =
-            "ai-scamshield-popup";
+            "ai-scamshield-danger-popup";
 
           popup.innerHTML = `
             <div style="
               position: fixed;
               top: 20px;
               right: 20px;
-              z-index: 999999;
-              background: #ef4444;
+              z-index: 999999999;
+              width: 380px;
+              background: linear-gradient(
+                135deg,
+                #dc2626,
+                #ef4444
+              );
               color: white;
-              padding: 20px 28px;
-              border-radius: 16px;
-              font-size: 18px;
-              font-weight: bold;
-              box-shadow: 0 0 25px rgba(239,68,68,0.7);
+              padding: 24px;
+              border-radius: 20px;
+              box-shadow: 0 0 40px rgba(239,68,68,0.9);
               font-family: Arial;
+              border: 4px solid white;
+              animation: shake 0.4s infinite alternate;
             ">
-              ⚠️ AI ScamShield Warning<br/>
-              Risk Score: ${score}%
+              <div style="
+                font-size: 28px;
+                font-weight: bold;
+                margin-bottom: 10px;
+              ">
+                ⚠️ WARNING
+              </div>
+
+              <div style="
+                font-size: 20px;
+                margin-bottom: 10px;
+              ">
+                Dangerous Website Detected
+              </div>
+
+              <div style="
+                font-size: 18px;
+                font-weight: bold;
+              ">
+                Risk Score: ${score}%
+              </div>
             </div>
           `;
 
@@ -84,16 +127,18 @@ async function scanURL(tabId, url) {
             popup
           );
 
+          // AUTO REMOVE
           setTimeout(() => {
 
             popup.remove();
 
-          }, 6000);
+          }, 8000);
         },
       });
 
     } else {
 
+      // SAFE WEBSITE
       chrome.action.setBadgeText({
         text: "",
         tabId: tabId,
@@ -102,13 +147,17 @@ async function scanURL(tabId, url) {
 
   } catch (error) {
 
-    console.log(error);
+    console.log(
+      "Scan Failed:",
+      error
+    );
   }
 }
 
 
+// AUTO SCAN
 chrome.tabs.onUpdated.addListener(
-  async (
+  (
     tabId,
     changeInfo,
     tab
@@ -119,7 +168,6 @@ chrome.tabs.onUpdated.addListener(
       tab.url
     ) {
 
-      // Retry after delay
       setTimeout(() => {
 
         scanURL(
@@ -127,7 +175,7 @@ chrome.tabs.onUpdated.addListener(
           tab.url
         );
 
-      }, 3000);
+      }, 2000);
     }
   }
 );
