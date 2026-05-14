@@ -1,61 +1,99 @@
-async function showDangerPopup(tabId, score) {
+async function showPopup(
+  tabId,
+  score,
+  dangerous,
+  failedPage = false
+) {
 
   try {
 
     await chrome.scripting.executeScript({
       target: { tabId },
 
-      func: (riskScore) => {
+      args: [
+        score,
+        dangerous,
+        failedPage
+      ],
+
+      func: (
+        riskScore,
+        isDangerous,
+        failed
+      ) => {
 
         // REMOVE OLD POPUP
         const old =
           document.getElementById(
-            "ai-scamshield-warning"
+            "ai-scamshield-popup"
           );
 
         if (old) {
           old.remove();
         }
 
-        // CREATE POPUP
         const popup =
-          document.createElement("div");
+          document.createElement(
+            "div"
+          );
 
         popup.id =
-          "ai-scamshield-warning";
+          "ai-scamshield-popup";
+
+        // COLORS
+        const bgColor =
+          failed
+            ? "linear-gradient(135deg,#7f1d1d,#dc2626)"
+            : isDangerous
+            ? "linear-gradient(135deg,#dc2626,#ef4444)"
+            : "linear-gradient(135deg,#16a34a,#22c55e)";
+
+        // TITLES
+        const title =
+          failed
+            ? "🚨 WEBSITE FAILED TO LOAD"
+            : isDangerous
+            ? "⚠️ DANGEROUS WEBSITE"
+            : "✅ SAFE WEBSITE";
+
+        // MESSAGE
+        const message =
+          failed
+            ? "This website could not load properly. Such websites are often unsafe or phishing attempts. Better avoid opening it."
+            : isDangerous
+            ? "Suspicious phishing indicators detected."
+            : "No major phishing indicators detected.";
 
         popup.innerHTML = `
           <div style="
             position: fixed;
             top: 20px;
             right: 20px;
-            width: 360px;
+            width: 380px;
             z-index: 999999999;
-            background: linear-gradient(
-              135deg,
-              #dc2626,
-              #ef4444
-            );
+            background: ${bgColor};
             color: white;
             padding: 24px;
             border-radius: 20px;
             font-family: Arial;
             border: 4px solid white;
-            box-shadow: 0 0 40px rgba(239,68,68,0.9);
+            box-shadow: 0 0 40px rgba(0,0,0,0.4);
           ">
+
             <div style="
-              font-size: 28px;
+              font-size: 26px;
               font-weight: bold;
-              margin-bottom: 10px;
+              margin-bottom: 12px;
             ">
-              ⚠️ WARNING
+              ${title}
             </div>
 
             <div style="
-              font-size: 20px;
-              margin-bottom: 10px;
+              font-size: 16px;
+              margin-bottom: 12px;
+              line-height: 1.5;
             ">
-              Dangerous Website Detected
+              ${message}
             </div>
 
             <div style="
@@ -64,6 +102,7 @@ async function showDangerPopup(tabId, score) {
             ">
               Risk Score: ${riskScore}%
             </div>
+
           </div>
         `;
 
@@ -71,37 +110,36 @@ async function showDangerPopup(tabId, score) {
           popup
         );
 
-        // REMOVE AFTER 8 SEC
+        // REMOVE AFTER 7 SEC
         setTimeout(() => {
 
           popup.remove();
 
-        }, 8000);
+        }, 7000);
       },
-
-      args: [score],
     });
 
-  } catch (err) {
+  } catch (e) {
 
     console.log(
-      "Popup injection failed",
-      err
+      "Popup injection failed"
     );
   }
 }
 
 
-async function scanURL(tabId, url) {
+async function scanURL(
+  tabId,
+  url
+) {
 
   try {
 
-    // SKIP INVALID PAGES
+    // SKIP CHROME PAGES
     if (
       !url ||
       url.startsWith("chrome://") ||
-      url.startsWith("edge://") ||
-      url.startsWith("about:")
+      url.startsWith("edge://")
     ) {
       return;
     }
@@ -126,63 +164,91 @@ async function scanURL(tabId, url) {
     const data =
       await response.json();
 
-    console.log(
-      "AUTO SCAN:",
-      data
+    console.log(data);
+
+    const dangerous =
+      data.risk_score >= 30;
+
+    // BADGE
+    chrome.action.setBadgeText({
+      text: dangerous ? "!" : "✓",
+      tabId,
+    });
+
+    chrome.action.setBadgeBackgroundColor({
+      color: dangerous
+        ? "#ef4444"
+        : "#22c55e",
+
+      tabId,
+    });
+
+    // ALWAYS SHOW NOTIFICATION
+    chrome.notifications.create({
+      type: "basic",
+
+      iconUrl: "icon.png",
+
+      title: dangerous
+        ? "⚠️ Dangerous Website"
+        : "✅ Safe Website",
+
+      message:
+        `Risk Score: ${data.risk_score}%`,
+    });
+
+    // SHOW PAGE POPUP
+    await showPopup(
+      tabId,
+      data.risk_score,
+      dangerous,
+      false
     );
-
-    if (
-      data.risk_score >= 30
-    ) {
-
-      // RED BADGE
-      chrome.action.setBadgeText({
-        text: "!",
-        tabId,
-      });
-
-      chrome.action.setBadgeBackgroundColor({
-        color: "#ef4444",
-        tabId,
-      });
-
-      // SAFE POPUP CALL
-      try {
-
-        await showDangerPopup(
-          tabId,
-          data.risk_score
-        );
-
-      } catch (e) {
-
-        console.log(
-          "Tab changed before popup"
-        );
-      }
-
-    } else {
-
-      // SAFE WEBSITE
-      chrome.action.setBadgeText({
-        text: "",
-        tabId,
-      });
-    }
 
   } catch (err) {
 
     console.log(
-      "Auto scan failed",
-      err
+      "Website failed to load"
+    );
+
+    // FAILED WEBSITE WARNING
+    chrome.notifications.create({
+      type: "basic",
+
+      iconUrl: "icon.png",
+
+      title:
+        "🚨 Website Failed to Load",
+
+      message:
+        "This website may be unsafe or suspicious. Better avoid opening it.",
+    });
+
+    // RED BADGE
+    chrome.action.setBadgeText({
+      text: "!",
+      tabId,
+    });
+
+    chrome.action.setBadgeBackgroundColor({
+      color: "#dc2626",
+      tabId,
+    });
+
+    // SHOW FAILED PAGE POPUP
+    await showPopup(
+      tabId,
+      90,
+      true,
+      true
     );
   }
 }
 
 
-// AUTO SCAN WHEN TAB LOADS
+// AUTO SCAN ALL TABS
 chrome.tabs.onUpdated.addListener(
-  async (
+  (
     tabId,
     changeInfo,
     tab
@@ -194,24 +260,14 @@ chrome.tabs.onUpdated.addListener(
       tab.url
     ) {
 
-      try {
+      setTimeout(() => {
 
-        // WAIT FOR PAGE LOAD
-        setTimeout(() => {
-
-          scanURL(
-            tabId,
-            tab.url
-          );
-
-        }, 3000);
-
-      } catch (e) {
-
-        console.log(
-          "Tab update skipped"
+        scanURL(
+          tabId,
+          tab.url
         );
-      }
+
+      }, 2000);
     }
   }
 );
