@@ -1,9 +1,24 @@
 chrome.runtime.onMessage.addListener(
   (message) => {
 
-    if (message.type === "SHOW_WARNING") {
+    if (
+      message.type === "SHOW_WARNING"
+    ) {
 
-      const warning = document.createElement("div");
+      // Prevent duplicates
+      if (
+        document.getElementById(
+          "ai-scamshield-warning"
+        )
+      ) {
+        return;
+      }
+
+      const warning =
+        document.createElement("div");
+
+      warning.id =
+        "ai-scamshield-warning";
 
       warning.innerHTML = `
         <div style="
@@ -13,32 +28,26 @@ chrome.runtime.onMessage.addListener(
           z-index: 999999;
           background: #ef4444;
           color: white;
-          padding: 20px;
-          border-radius: 12px;
-          width: 320px;
-          box-shadow: 0 0 20px rgba(0,0,0,0.4);
+          padding: 18px 24px;
+          border-radius: 16px;
+          font-size: 16px;
+          font-weight: bold;
+          box-shadow: 0 0 20px rgba(239,68,68,0.6);
           font-family: Arial;
         ">
-
-          <h2>
-            ⚠️ AI ScamShield Warning
-          </h2>
-
-          <p>
-            Potential phishing website detected.
-          </p>
-
-          <p>
-            This site may attempt to steal personal information.
-          </p>
-
+          ⚠️ AI ScamShield Warning<br/>
+          Suspicious website detected!
         </div>
       `;
 
-      document.body.appendChild(warning);
+      document.body.appendChild(
+        warning
+      );
 
       setTimeout(() => {
+
         warning.remove();
+
       }, 5000);
     }
   }

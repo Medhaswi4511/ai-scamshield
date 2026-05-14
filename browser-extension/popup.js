@@ -1,73 +1,75 @@
-const scanBtn = document.getElementById("scanBtn");
+document
+  .getElementById("scanBtn")
+  .addEventListener(
+    "click",
+    async () => {
 
-const resultDiv = document.getElementById("result");
+      const url =
+        document.getElementById(
+          "urlInput"
+        ).value;
 
-scanBtn.addEventListener("click", async () => {
+      const resultDiv =
+        document.getElementById(
+          "result"
+        );
 
-  const tabs = await chrome.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
+      resultDiv.innerHTML =
+        "Scanning...";
 
-  const currentUrl = tabs[0].url;
+      try {
 
-  resultDiv.innerHTML = `
-    <p>Scanning...</p>
-  `;
+        const response =
+          await fetch(
+            "https://ai-scamshield-backend.onrender.com/detect-url",
+            {
+              method: "POST",
 
-  try {
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
 
-    const response = await fetch(
-      "http://127.0.0.1:8000/detect-url",
-      {
-        method: "POST",
+              body: JSON.stringify({
+                url: url,
+              }),
+            }
+          );
 
-        headers: {
-          "Content-Type": "application/json",
-        },
+        const data =
+          await response.json();
 
-        body: JSON.stringify({
-          url: currentUrl,
-        }),
-      }
-    );
+        if (data.is_phishing) {
 
-    const data = await response.json();
+          resultDiv.innerHTML = `
+            <div style="
+              color:#f87171;
+              margin-top:10px;
+            ">
+              ⚠️ Dangerous Website<br/>
+              Risk Score: ${data.risk_score}%
+            </div>
+          `;
 
-    resultDiv.innerHTML = `
-      <h3>Scan Result</h3>
+        } else {
 
-      <p>
-        Risk Score:
-        <strong>${data.risk_score}%</strong>
-      </p>
-
-      <p>
-        ${
-          data.is_phishing
-            ? "⚠️ Potential Phishing Site"
-            : "✅ Website Looks Safe"
+          resultDiv.innerHTML = `
+            <div style="
+              color:#4ade80;
+              margin-top:10px;
+            ">
+              ✅ Website Looks Safe
+            </div>
+          `;
         }
-      </p>
 
-      <h4>Reasons</h4>
+      } catch (error) {
 
-      <ul>
-        ${data.reasons
-          .map(
-            (reason) =>
-              `<li>${reason}</li>`
-          )
-          .join("")}
-      </ul>
-    `;
-
-  } catch (error) {
-
-    resultDiv.innerHTML = `
-      <p>
-        Backend connection failed.
-      </p>
-    `;
-  }
-});
+        resultDiv.innerHTML = `
+          <div style="color:red">
+            Backend connection failed
+          </div>
+        `;
+      }
+    }
+  );

@@ -8,60 +8,40 @@
   <style>
 
     body {
-
-      width: 320px;
-
-      background: #020617;
-
-      color: white;
-
-      font-family: Arial;
-
+      width: 300px;
       padding: 20px;
+      background: #0f172a;
+      color: white;
+      font-family: Arial;
     }
 
-    h1 {
-
+    h2 {
       color: #22d3ee;
+    }
 
-      font-size: 24px;
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      margin-top: 10px;
+      margin-bottom: 15px;
     }
 
     button {
-
-      background: #06b6d4;
-
-      color: white;
-
-      border: none;
-
-      padding: 12px 20px;
-
-      border-radius: 10px;
-
-      cursor: pointer;
-
-      margin-top: 15px;
-
       width: 100%;
-
-      font-size: 16px;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #06b6d4;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     #result {
-
-      margin-top: 20px;
-
-      background: #1e293b;
-
-      padding: 15px;
-
-      border-radius: 12px;
-    }
-
-    ul {
-
-      padding-left: 20px;
+      margin-top: 15px;
+      font-size: 14px;
     }
 
   </style>
@@ -70,19 +50,19 @@
 
 <body>
 
-  <h1>AI ScamShield</h1>
+  <h2>AI ScamShield</h2>
 
-  <p>Scan current website for phishing risk.</p>
+  <input
+    type="text"
+    id="urlInput"
+    placeholder="Paste URL..."
+  />
 
   <button id="scanBtn">
-    Scan Current Website
+    Scan Website
   </button>
 
-  <div id="result">
-
-    <p>Waiting for scan...</p>
-
-  </div>
+  <div id="result"></div>
 
   <script src="popup.js"></script>
 

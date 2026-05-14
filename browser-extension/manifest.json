@@ -3,17 +3,21 @@
 
   "name": "AI ScamShield",
 
-  "version": "3.0",
+  "version": "1.0",
 
-  "description": "AI-powered phishing and scam detection extension",
+  "description": "AI-powered phishing detection extension.",
 
   "permissions": [
     "tabs",
-    "activeTab"
+    "activeTab",
+    "storage",
+    "notifications",
+    "scripting"
   ],
 
   "host_permissions": [
-    "<all_urls>"
+    "https://*/*",
+    "http://*/*"
   ],
 
   "background": {

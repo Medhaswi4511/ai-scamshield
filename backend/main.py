@@ -47,18 +47,17 @@ class URLRequest(BaseModel):
 SCAM_KEYWORDS = [
     "otp",
     "urgent",
-    "verify",
-    "bank",
-    "blocked",
+    "verify account",
+    "bank verification",
+    "blocked account",
     "free money",
     "click now",
     "winner",
-    "prize",
-    "password",
-    "login",
+    "claim prize",
+    "free reward",
     "account suspended",
+    "crypto giveaway",
 ]
-
 
 # Safe Keywords
 SAFE_KEYWORDS = [
