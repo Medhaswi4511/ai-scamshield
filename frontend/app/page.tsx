@@ -63,7 +63,7 @@ export default function Home() {
         formData.append("file", image);
 
         const response = await fetch(
-          "https://ai-scamshield-backend.onrender.com",
+          "https://ai-scamshield-production.up.railway.app",
           {
             method: "POST",
             body: formData,
@@ -80,9 +80,9 @@ export default function Home() {
       }
 
       const endpoint =
-        mode === "message"
-          ? "http://127.0.0.1:8000/detect-scam"
-          : "http://127.0.0.1:8000/detect-url";
+  mode === "message"
+    ? "https://ai-scamshield-production.up.railway.app/detect-scam"
+    : "https://ai-scamshield-production.up.railway.app/detect-url";
 
       const body =
         mode === "message"

@@ -21,7 +21,7 @@ document
 
         const response =
           await fetch(
-            "https://ai-scamshield-backend.onrender.com/detect-url",
+            "https://ai-scamshield-production.up.railway.app",
             {
               method: "POST",
 
