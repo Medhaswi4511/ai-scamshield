@@ -49,60 +49,14 @@ async function scanCurrentTab() {
       data.risk_score >= 30
     ) {
 
-      // BIG POPUP ALERT
-      document.body.innerHTML += `
-        <div id="danger-popup" style="
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          z-index: 999999999;
-          width: 320px;
-          background: linear-gradient(
-            135deg,
-            #dc2626,
-            #ef4444
-          );
-          color: white;
-          padding: 24px;
-          border-radius: 20px;
-          box-shadow: 0 0 40px rgba(239,68,68,0.9);
-          font-family: Arial;
-          border: 4px solid white;
-        ">
-
-          <div style="
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 10px;
-          ">
-            ⚠️ WARNING
-          </div>
-
-          <div style="
-            font-size: 20px;
-            margin-bottom: 10px;
-          ">
-            Dangerous Website Detected
-          </div>
-
-          <div style="
-            font-size: 18px;
-            font-weight: bold;
-          ">
-            Risk Score: ${data.risk_score}%
-          </div>
-
-        </div>
-      `;
-
       resultDiv.innerHTML = `
         <div style="
           color:#f87171;
           margin-top:10px;
           font-weight:bold;
-          font-size:16px;
+          font-size:18px;
         ">
-          ⚠️ Dangerous Website<br/>
+          ⚠️ Dangerous Website<br/><br/>
           Risk Score: ${data.risk_score}%
         </div>
       `;
@@ -114,7 +68,7 @@ async function scanCurrentTab() {
           color:#4ade80;
           margin-top:10px;
           font-weight:bold;
-          font-size:16px;
+          font-size:18px;
         ">
           ✅ Website Looks Safe
         </div>

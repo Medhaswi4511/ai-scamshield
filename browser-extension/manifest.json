@@ -3,9 +3,10 @@
 
   "name": "AI ScamShield",
 
-  "version": "2.0",
+  "version": "1.0",
 
-  "description": "AI-powered phishing detection extension.",
+  "description":
+    "AI-powered phishing and scam detection extension.",
 
   "permissions": [
     "tabs",
@@ -16,16 +17,22 @@
   ],
 
   "host_permissions": [
-    "https://*/*",
-    "http://*/*"
+    "<all_urls>"
   ],
 
   "background": {
-    "service_worker": "background.js"
+    "service_worker":
+      "background.js"
   },
 
   "action": {
-    "default_popup": "popup.html",
-    "default_title": "AI ScamShield"
+    "default_popup":
+      "popup.html"
+  },
+
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
   }
 }
