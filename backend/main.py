@@ -13,28 +13,15 @@ app = FastAPI()
 # CORS
 app.add_middleware(
     CORSMiddleware,
-
     allow_origins=["*"],
-
     allow_origin_regex=".*",
-
     allow_credentials=True,
-
     allow_methods=["*"],
-
     allow_headers=["*"],
 )
 
 
-# LOCAL WINDOWS OCR PATH
-# COMMENTED FOR RENDER DEPLOYMENT
-#
-# pytesseract.pytesseract.tesseract_cmd = (
-#     r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-# )
-
-
-# Request Models
+# REQUEST MODELS
 class MessageRequest(BaseModel):
     text: str
 
@@ -43,49 +30,29 @@ class URLRequest(BaseModel):
     url: str
 
 
-# Scam Keywords
+# SMART PHISHING KEYWORDS
 SCAM_KEYWORDS = [
-    "otp",
-    "urgent",
-    "verify account",
-    "bank verification",
-    "blocked account",
     "free money",
-    "click now",
     "winner",
     "claim prize",
-    "free reward",
-    "account suspended",
     "crypto giveaway",
+    "free reward",
+    "otp",
+    "urgent",
+    "account suspended",
+    "verify account",
 ]
 
-# Safe Keywords
-SAFE_KEYWORDS = [
-    "ai scamshield",
-    "cybersecurity awareness",
-    "educational project",
-]
 
-
-# AI Scam Analysis
+# AI ANALYSIS
 def analyze_text(text: str):
 
-    lower_text = text.lower()
-
-    # Safe whitelist
-    for word in SAFE_KEYWORDS:
-
-        if word in lower_text:
-
-            return {
-                "is_scam": False,
-                "risk_score": 0,
-                "reasons": [
-                    "Trusted educational content detected"
-                ],
-                "ai_explanation":
-                "This content appears educational and does not contain harmful scam behavior."
-            }
+    # IMPORTANT FIX
+    lower_text = (
+        text.lower()
+        .replace("-", " ")
+        .replace("_", " ")
+    )
 
     reasons = []
 
@@ -93,7 +60,7 @@ def analyze_text(text: str):
 
     score = 0
 
-    # Keyword detection
+    # KEYWORD DETECTION
     for keyword in SCAM_KEYWORDS:
 
         if keyword in lower_text:
@@ -104,58 +71,52 @@ def analyze_text(text: str):
 
             score += 30
 
-    # AI explanation logic
+    # AI EXPLANATIONS
     if "urgent" in lower_text:
 
         explanations.append(
-            "This message creates urgency to pressure the user into acting quickly."
+            "This content creates urgency to pressure users."
         )
 
     if "otp" in lower_text:
 
         explanations.append(
-            "The message asks for OTP-related information which is commonly targeted in scams."
+            "OTP-related requests are common in scams."
         )
 
     if (
         "free money" in lower_text
         or "winner" in lower_text
+        or "claim prize" in lower_text
     ):
 
         explanations.append(
-            "The message promises rewards or prizes which is a common scam tactic."
+            "This website promises rewards or prizes which is a common phishing tactic."
         )
 
-    if (
-        "login" in lower_text
-        or "password" in lower_text
-    ):
+    if "verify account" in lower_text:
 
         explanations.append(
-            "The message attempts to collect login credentials or sensitive information."
+            "The website attempts to collect sensitive account information."
         )
 
-    if "bank" in lower_text:
-
-        explanations.append(
-            "The message impersonates financial institutions to gain trust."
-        )
-
+    # LIMIT SCORE
     score = min(score, 100)
 
-    if len(explanations) == 0:
+    # SAFE RESPONSE
+    if score == 0:
 
         explanations.append(
-            "No strong scam manipulation patterns detected."
+            "No strong phishing indicators detected."
         )
 
     return {
         "is_scam": score >= 30,
+
         "risk_score": score,
 
-        "reasons": reasons
-        if reasons
-        else [
+        "reasons":
+        reasons if reasons else [
             "No major scam indicators detected"
         ],
 
@@ -164,10 +125,10 @@ def analyze_text(text: str):
     }
 
 
-# Scam Message Detection
+# MESSAGE DETECTION
 @app.post("/detect-scam")
 async def detect_scam(
-    request: MessageRequest,
+    request: MessageRequest
 ):
 
     return analyze_text(
@@ -175,10 +136,10 @@ async def detect_scam(
     )
 
 
-# URL Detection
+# URL DETECTION
 @app.post("/detect-url")
 async def detect_url(
-    request: URLRequest,
+    request: URLRequest
 ):
 
     result = analyze_text(
@@ -200,7 +161,7 @@ async def detect_url(
     }
 
 
-# Screenshot OCR Detection
+# IMAGE OCR SCAN
 @app.post("/scan-image")
 async def scan_image(
     file: UploadFile = File(...)
@@ -244,26 +205,22 @@ async def scan_image(
     except Exception:
 
         return {
-            "extracted_text":
-            "",
+            "extracted_text": "",
 
-            "is_scam":
-            False,
+            "is_scam": False,
 
-            "risk_score":
-            0,
+            "risk_score": 0,
 
-            "reasons":
-            [
+            "reasons": [
                 "OCR unavailable on deployed server"
             ],
 
             "ai_explanation":
-            "Screenshot OCR currently works only on local system."
+            "Image OCR works locally only."
         }
 
 
-# Root Route
+# ROOT
 @app.get("/")
 async def root():
 
