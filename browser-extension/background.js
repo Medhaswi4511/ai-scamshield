@@ -9,7 +9,7 @@ chrome.tabs.onUpdated.addListener(
       try {
 
         const response = await fetch(
-          "https://ai-scamshield-backend.onrender.com",
+          "https://ai-scamshield-backend.onrender.com/detect-url",
           {
             method: "POST",
 
@@ -27,6 +27,7 @@ chrome.tabs.onUpdated.addListener(
 
         if (data.is_phishing) {
 
+          // Red badge
           chrome.action.setBadgeText({
             text: "!",
             tabId: tabId,
@@ -37,6 +38,7 @@ chrome.tabs.onUpdated.addListener(
             tabId: tabId,
           });
 
+          // Show popup overlay
           chrome.tabs.sendMessage(
             tabId,
             {
@@ -46,6 +48,7 @@ chrome.tabs.onUpdated.addListener(
 
         } else {
 
+          // Remove badge
           chrome.action.setBadgeText({
             text: "",
             tabId: tabId,
@@ -57,6 +60,8 @@ chrome.tabs.onUpdated.addListener(
         console.log(
           "Backend connection failed"
         );
+
+        console.log(error);
       }
     }
   }

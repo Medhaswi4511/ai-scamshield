@@ -13,17 +13,25 @@ app = FastAPI()
 # CORS
 app.add_middleware(
     CORSMiddleware,
+
     allow_origins=["*"],
+
+    allow_origin_regex=".*",
+
     allow_credentials=True,
+
     allow_methods=["*"],
+
     allow_headers=["*"],
 )
 
 
-# Tesseract Path
-pytesseract.pytesseract.tesseract_cmd = (
-    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-)
+# LOCAL WINDOWS OCR PATH
+# COMMENTED FOR RENDER DEPLOYMENT
+#
+# pytesseract.pytesseract.tesseract_cmd = (
+#     r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+# )
 
 
 # Request Models
@@ -95,7 +103,7 @@ def analyze_text(text: str):
                 f"Detected suspicious keyword: {keyword}"
             )
 
-            score += 15
+            score += 30
 
     # AI explanation logic
     if "urgent" in lower_text:
@@ -143,7 +151,7 @@ def analyze_text(text: str):
         )
 
     return {
-        "is_scam": score >= 40,
+        "is_scam": score >= 30,
         "risk_score": score,
 
         "reasons": reasons
@@ -199,38 +207,61 @@ async def scan_image(
     file: UploadFile = File(...)
 ):
 
-    image_bytes = await file.read()
+    try:
 
-    image = Image.open(
-        io.BytesIO(image_bytes)
-    )
+        image_bytes = await file.read()
 
-    extracted_text = (
-        pytesseract.image_to_string(
-            image
+        image = Image.open(
+            io.BytesIO(image_bytes)
         )
-    )
 
-    result = analyze_text(
-        extracted_text
-    )
+        extracted_text = (
+            pytesseract.image_to_string(
+                image
+            )
+        )
 
-    return {
-        "extracted_text":
-        extracted_text,
+        result = analyze_text(
+            extracted_text
+        )
 
-        "is_scam":
-        result["is_scam"],
+        return {
+            "extracted_text":
+            extracted_text,
 
-        "risk_score":
-        result["risk_score"],
+            "is_scam":
+            result["is_scam"],
 
-        "reasons":
-        result["reasons"],
+            "risk_score":
+            result["risk_score"],
 
-        "ai_explanation":
-        result["ai_explanation"],
-    }
+            "reasons":
+            result["reasons"],
+
+            "ai_explanation":
+            result["ai_explanation"],
+        }
+
+    except Exception:
+
+        return {
+            "extracted_text":
+            "",
+
+            "is_scam":
+            False,
+
+            "risk_score":
+            0,
+
+            "reasons":
+            [
+                "OCR unavailable on deployed server"
+            ],
+
+            "ai_explanation":
+            "Screenshot OCR currently works only on local system."
+        }
 
 
 # Root Route
